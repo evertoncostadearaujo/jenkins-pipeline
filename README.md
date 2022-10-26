@@ -9,13 +9,13 @@ Jenkins é um aplicativo de automação, que é muito usado para Integração Co
 
 ### Passos para configurar Jenkins
 A maneira mais fácil de colocar o Jenkins em funcionamento é via Docker.
-``` sh
-docker pull jenkins/jenkins
-```
+    ``` sh
+    docker pull jenkins/jenkins
+    ```
 Vamos executar a versão Long Term Support (lts) com o seguinte comando:
-``` sh
-docker run --rm -p 8080:8080 -v "${HOME}/.jenkins:/var/jenkins_home" jenkins/jenkins
-```
+    ``` sh
+    docker run --rm -p 8080:8080 -v "${HOME}/.jenkins:/var/jenkins_home" jenkins/jenkins
+    ```
 Para entender este comando, vamos:
 
 1. Execute a imagem docker jenkins/jenkins:lts como um contêiner.
@@ -64,9 +64,20 @@ Agora você tem uma instância do Jenkins em execução localmente.
 Para garantir que estamos na mesma página, clique no logotipo do Jenkins no canto superior esquerdo. Isso deve nos trazer de volta à página inicial.
 Clique em “New Item” no canto superior esquerdo da tela. Chame o item como quiser, mas aqui foi chamado “SimplePipeline” e selecione a opção “Pipeline”. Em seguida, clique em OK.
 
-A página de configuração será aberta, porém, antes de prosseguirmos com as configurações, vamos no repositório do Github que queremos integrar com o Jenkins e criar um arquivo com as configurações do pipeline.
-Nesse [link](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/), é possível entender melhor a sintaxe do arquivo de configuração do pipeline. Mas, resumidamente, devemos criar os estágios que queremos que sejam executados toda vez que for pedido para rodar o pipeline.
-O arquivo a seguir pode ser criado na pasta raiz do repositório, com nome “Jenkinsfile”, e deve ter a seguinte estrutura:
+A página de configuração será aberta, e vamos criar primeiramente um pipeline simples.
+Na seção “Pipeline”, selecione a opção “Pipeline script” no campo “Definition”, e na caixinha abaixo, no canto superior direito selecione a opção “Hello World”. Um script de pipeline será criado.
+Nesse [link](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/), é possível entender melhor a sintaxe do arquivo de configuração do pipeline. Mas, resumidamente, devemos criar os estágios que queremos que sejam executados toda vez que for pedido para rodar o pipeline. Nesse caso, temo apenas um estágio e apenas um comando a ser executado.
+Clique em “Save”.
+
+Após criado o script de pipeline, agora podemos fazer um “build” do nosso pipeline, clicando em “Build Now” no canto superior esquerdo.
+
+Parabéns! Você criou e executou seu primeiro pipeline com o Jenkins!
+
+Após a execução desse build, você consegue visualizar o histórico e o “Stage View” de cada execução do pipeline que você fizer. Clicando sobre a caixa verde, aparecerá a opção “Logs” e ao clicar nela, você pode visualizar os logs emitidos durante a execução do pipeline.
+
+Agora vamos integrar nosso pipeline com um repositório!
+Para isso, vamos ao local em que o repositório está localizado no Github e vamos criar um arquivo com as configurações do pipeline.
+O arquivo a seguir pode ser criado na pasta raiz do repositório, com nome “Jenkinsfile”, e deve ter a mesma estrutura do arquivo que foi criado no nosso primeiro pipeline, porém vamos adicionar mais estágios e ele terá a seguinte estrutura:
 ``` sh
 pipeline {
     agent any
@@ -96,6 +107,16 @@ Nesse arquivo temos os estágios Build, Test e Deploy com um comando simples ape
 
 Voltando à nossa interface do Jenkins, nas configurações do pipeline que criamos, desça até a seção “Pipeline” e no campo “Definition” selecione a opção “Pipeline script from SCM”.
 No campo “SCM”, selecione a opção “Git”.
-Adicione a URL do repositório no campo “Repository URL”.
-E mais abaixo, certifique-se de que o campo “Script Path” contém o caminho correto do arquivo que criamos no nosso repositório, que no caso é “Jenkinsfile”.
+Adicione a URL do repositório no campo “Repository URL”. É importante que o repositório seja público para que não haja necessidade de adicionar credenciais de acesso, nesse caso. Também existem outras configurações que podem ser feitas de acordo com as necessidades do projeto, mas vamos tentar simplificar o máximo possível para entendermos.
+
+Mais abaixo nas configurações, certifique-se de que o campo “Script Path” contém o caminho correto do arquivo que criamos no nosso repositório, que no caso é “Jenkinsfile”.
+
+Agora com as configurações corretas, é possível rodar o pipeline novamente e enxergar os três estágios que criamos, mais um estágio de checkout de SCM.
+
+Mas ainda falta configurar o pipeline para ser executado toda vez que alguma mudança acontecer no repositório que ele está integrado, para isso vamos às configurações novamente e na seção “Build Triggers” e selecione a opção “Poll SCM”. Quando selecionada, uma caixa de texto “Schedule” será aberta e nela vamos inserir cinco asteriscos com espaço entre eles:
+``` sh
+* * * * *
+```
+
+Clique em “Save” e pronto! Agora é só fazer alguma alteração no repositório que você integrou que em segundos você verá um novo build acontecer.
 
